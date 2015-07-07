@@ -1,15 +1,17 @@
 namespace :import do
-  task :questions => ['data/qfull']
-  directory 'data/qfull' => ['data/qfull.exe']
-  file 'data/qfull.exe' => [:fetch, :decompress]
-
-  task :fetch do
-    Dir.chdir 'data' do
-      `wget http://qadv.uk/qfull.exe`
+  task :questions => ['data/qfull', :environment] do
+    Dir['data/qfull/items*.txt'].each do |filename|
+      QADVItemParser.new(filename).each do |item|
+        pp item
+      end
     end
   end
 
-  task :decompress do
+  directory 'data/qfull' => ['data/qfull.exe']
+  file 'data/qfull.exe' do
+    Dir.chdir 'data' do
+      `wget http://qadv.uk/qfull.exe`
+    end
     Dir.chdir 'data' do
       `7z x qfull.exe`
     end
